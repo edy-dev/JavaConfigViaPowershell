@@ -332,3 +332,13 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+################################################
+## Windows              
+################################################
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
