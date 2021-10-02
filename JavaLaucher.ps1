@@ -33,7 +33,6 @@ $Set_JavaLacucher = {
 
 
    function CheckPatchIsEnd {([System.String]$args)
-        ## [bool]([string]::IsNullOrWhitespace($args));
         if ([string]::IsNullOrWhitespace($args)){
             throw "Please run this script as an administrator";
         }else {
@@ -120,10 +119,12 @@ $Set_JavaLacucher = {
    }else{
        WriteOutputDebug ([System.Boolean]$enableWriteOutputDebug)([System.String]"Env:PATH: [" + ($(Get-ChildItem Env:PATH)[0].Value.ToString())+"] OLD");
        if (($Env:PATH) -notlike ("*$Env:PATH_DIR*")){
-           if (CheckIsAdm){
-               $Env:PATH="$Env:PATH;$Env:PATH_DIR";
+           if (CheckPatchIsEnd($Env:PATH)){
+                $Env:PATH="$Env:PATH;$Env:PATH_DIR";
+                ## $Env:PATH="$Env:PATH$Env:PATH_DIR;";
            }else{
-               $Env:PATH="$Env:PATH$Env:PATH_DIR;";
+                $Env:PATH="$Env:PATH$Env:PATH_DIR;";
+                ##$Env:PATH="$Env:PATH;$Env:PATH_DIR";
            };
            WriteOutputDebug ([System.Boolean]$enableWriteOutputDebug)([System.String]"Env:PATH: [" + ($(Get-ChildItem Env:PATH)[0].Value.ToString())+"] REPLANCE ");
        }else{
