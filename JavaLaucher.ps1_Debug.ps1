@@ -4,10 +4,18 @@ $JavaRocketLauncher = {
     ## @id:terminal.integrated.commandsToSkipShell,terminal.integrated.sendKeybindingsToShell,terminal.integrated.allowChords
     ## powershell.exe -NoLogo -NoProfile -Command '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Install-Module -Name PackageManagement -Force -MinimumVersion 1.4.6 -Scope CurrentUser -AllowClobber -Repository PSGallery'
     ## powershell.exe -NoLogo -NoProfile -Command '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Install-Module -Name PackageManagement -Force -MinimumVersion 1.4.6 -Scope CurrentUser -AllowClobber -Repository PSGallery'
-
+    
     function Get-AllEnvironmentVariables {
         $(Get-ChildItem Env:)
     };
+    
+    $enableWriteOutputDebug = $true;
+    function WriteOutputDebug([System.Boolean]$showMsg, [System.String]$textMsg) {
+        if ($showMsg) {
+            Write-Output $textMsg;
+        };
+    };
+ 
     function IsValidString([System.String]$textMsg) {
         if (([System.String]::IsNullOrEmpty($textMsg)) -And ([System.String]::IsNullOrWhitespace($textMsg))) {
             return $false;
@@ -52,11 +60,18 @@ $JavaRocketLauncher = {
         if (IsValidString($textMsg)) {
             $Env:JAVA_HOME_PATH = $textMsg;
             if (($Env:JAVA_HOME) -eq ($null)) {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:JAVA_HOME: [NULL]");
                 $Env:JAVA_HOME = $Env:JAVA_HOME_PATH;
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:JAVA_HOME: [" + ($(Get-ChildItem Env:JAVA_HOME)[0].Value.ToString()) + "] NEW");
             }
             else {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:JAVA_HOME: [" + ($(Get-ChildItem Env:JAVA_HOME)[0].Value.ToString()) + "] OLD");
                 if (($Env:JAVA_HOME) -cne ($Env:JAVA_HOME_PATH)) {
                     $Env:JAVA_HOME = $Env:JAVA_HOME_PATH;
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:JAVA_HOME: [" + ($(Get-ChildItem Env:JAVA_HOME)[0].Value.ToString()) + "] REPLANCE ");
+                }
+                else {
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:JAVA_HOME: [" + ($(Get-ChildItem Env:JAVA_HOME)[0].Value.ToString()) + "] NOW ");
                 };
             };
         }
@@ -70,11 +85,18 @@ $JavaRocketLauncher = {
         if (IsValidString($textMsg)) {
             $Env:JDK_HOME_DIR = $textMsg;
             if (($Env:JDK_HOME) -eq ($null)) {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:JDK_HOME: [NULL]");
                 $Env:JDK_HOME = $Env:JDK_HOME_DIR;
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:JDK_HOME: [" + ($(Get-ChildItem Env:JDK_HOME)[0].Value.ToString()) + "] NEW");
             }
             else {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:JDK_HOME: [" + ($(Get-ChildItem Env:JDK_HOME)[0].Value.ToString()) + "] OLD");
                 if (($Env:JDK_HOME) -cne ($Env:JDK_HOME_DIR)) {
                     $Env:JDK_HOME = $Env:JDK_HOME_DIR;
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:JDK_HOME: [" + ($(Get-ChildItem Env:JDK_HOME)[0].Value.ToString()) + "] REPLANCE ");
+                }
+                else {
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:JDK_HOME: [" + ($(Get-ChildItem Env:JDK_HOME)[0].Value.ToString()) + "] NOW ");
                 };
             };
         }
@@ -88,11 +110,18 @@ $JavaRocketLauncher = {
         if (IsValidString($textMsg)) {
             $Env:JRE_HOME_DIR = $textMsg;
             if (($Env:JRE_HOME) -eq ($null)) {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:JRE_HOME: [NULL]");
                 $Env:JRE_HOME = $Env:JRE_HOME_DIR;
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:JRE_HOME: [" + ($(Get-ChildItem Env:JRE_HOME)[0].Value.ToString()) + "] NEW");
             }
             else {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:JRE_HOME: [" + ($(Get-ChildItem Env:JRE_HOME)[0].Value.ToString()) + "] OLD");
                 if (($Env:JRE_HOME) -cne ($Env:JRE_HOME_DIR)) {
                     $Env:JRE_HOME = $Env:JRE_HOME_DIR;
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:JRE_HOME: [" + ($(Get-ChildItem Env:JRE_HOME)[0].Value.ToString()) + "] REPLANCE ");
+                }
+                else {
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:JRE_HOME: [" + ($(Get-ChildItem Env:JRE_HOME)[0].Value.ToString()) + "] NOW ");
                 };
             };
         }
@@ -106,11 +135,18 @@ $JavaRocketLauncher = {
         if (IsValidString($textMsg)) {
             $Env:CLASSPATH_DIR = $textMsg;
             if (($Env:CLASSPATH) -eq ($null)) {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:CLASSPATH: [NULL]");
                 $Env:CLASSPATH = $Env:CLASSPATH_DIR;
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:CLASSPATH: [" + ($(Get-ChildItem Env:CLASSPATH)[0].Value.ToString()) + "] NEW");
             }
             else {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:CLASSPATH: [" + ($(Get-ChildItem Env:CLASSPATH)[0].Value.ToString()) + "] OLD");
                 if (($Env:CLASSPATH) -cne ($Env:CLASSPATH_DIR)) {
                     $Env:CLASSPATH = $Env:CLASSPATH_DIR;
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:CLASSPATH: [" + ($(Get-ChildItem Env:CLASSPATH)[0].Value.ToString()) + "] REPLANCE ");
+                }
+                else {
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:CLASSPATH: [" + ($(Get-ChildItem Env:CLASSPATH)[0].Value.ToString()) + "] NOW ");
                 };
             };
         }
@@ -124,21 +160,29 @@ $JavaRocketLauncher = {
         if (IsValidString($textMsg)) {
             $Env:PATH_DIR = $textMsg;
             if (($Env:PATH) -eq ($null)) {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:PATH: [NULL]");
                 if (CheckIsAdm) {
                     $Env:PATH = $Env:PATH_DIR;
                 }
                 else {
                     $Env:PATH = $Env:PATH_DIR + ";";
                 };
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:PATH: [" + ($(Get-ChildItem Env:PATH)[0].Value.ToString()) + "] NEW");
             }
             else {
+                WriteOutputDebug ($enableWriteOutputDebug)("Env:PATH: [" + ($(Get-ChildItem Env:PATH)[0].Value.ToString()) + "] OLD");
                 if (($Env:PATH) -notlike ("*$Env:PATH_DIR*")) {
                     if (IsEndStringPatch($Env:PATH)) {
                         $Env:PATH = $Env:PATH + ";" + $Env:PATH_DIR + ";";
                     }
                     else {
                         $Env:PATH = $Env:PATH + ";" + $Env:PATH_DIR;
+                        
                     };
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:PATH: [" + ($(Get-ChildItem Env:PATH)[0].Value.ToString()) + "] REPLANCE ");
+                }
+                else {
+                    WriteOutputDebug ($enableWriteOutputDebug)("Env:PATH: [" + ($(Get-ChildItem Env:PATH)[0].Value.ToString()) + "] NOW ");
                 };
             };
         }
