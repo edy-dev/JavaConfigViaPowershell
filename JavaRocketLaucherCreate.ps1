@@ -17,9 +17,9 @@ $JavaRocketLauncher = {
 
     };
 
-    function IsValidString([System.String]$textmsgErro) {
+    function IsValidString([System.String]$textValid) {
 
-        if (([System.String]::IsNullOrEmpty($textmsgErro)) -And ([System.String]::IsNullOrWhitespace($textmsgErro))) {
+        if (([System.String]::IsNullOrEmpty($textValid)) -And ([System.String]::IsNullOrWhitespace($textValid))) {
 
             return $false;
 
@@ -31,13 +31,13 @@ $JavaRocketLauncher = {
         };
     };
 
-    function IsEndPatch([System.String]$textmsgErro) {
+    function IsEndPath([System.String]$textPath) {
 
-        if (IsValidString($textmsgErro)) {
+        if (IsValidString($textPath)) {
     
-            $textmsgErro = $textmsgErro.substring($textmsgErro.Length - 1 , 1);
+            $textPath = $textPath.substring($textPath.Length - 1 , 1);
 
-            if (($textmsgErro) -eq (";")) {
+            if (($textPath) -eq (";")) {
                 
                 return $true;
             }
@@ -48,7 +48,7 @@ $JavaRocketLauncher = {
         }
         else {
 
-            throw "[ERRO] IsEndPatch";
+            throw "[ERRO] IsEndPath";
 
         };  
     };
@@ -65,8 +65,56 @@ $JavaRocketLauncher = {
     $EnvironmentTargetList.Add("Machine") > $null ;
     $EnvironmentTargetList.Add("Process") > $null ;
 
-    function Set-EnvironmentJavaCreate([System.EnvironmentVariableTarget]$textTarget) {
-   
+    function Set-EnvironmentJavaCreate([System.String]$textTarget) {
+        
+        for ($ContadorTarget = 0; $ContadorTarget -lt $EnvironmentTargetList.Count; $ContadorTarget++) {
+
+            [System.Boolean]$EncontradoTarget = $false;
+
+            if (($EnvironmentTargetList[$ContadorTarget].ToString()) -eq ($textTarget.ToString())) {
+       
+                $EncontradoTarget = $true;
+                WriteOutputDebug($enableWriteOutputDebug) ("[" + $EnvironmentTargetList[$ContadorTarget] + "]");
+
+            }
+            else {
+
+                $EncontradoTarget = $false;
+            };
+
+            if ($EncontradoTarget) {
+
+                $ValuesEnvironment = New-Object System.Collections.ArrayList;
+
+                for ($i = 0; $i -lt ($EnvironmentPathList.Count); $i++) {
+                    
+                    $ValuesEnvironment.Add([System.Environment]::GetEnvironmentVariable($EnvironmentPathList[$i][0], $textTarget))  > $null ;
+        
+                    if ($EnvironmentPathList[4][0] -eq $EnvironmentPathList[$i][0]) {       
+
+                        if (($ValuesEnvironment[$i]) -notlike ("*" + $EnvironmentPathList[$i][1] + "*")) {
+
+                            if (IsEndPath($ValuesEnvironment[$i])) {
+
+                                $ValuesEnvironment[$i] = $ValuesEnvironment[$i].Insert($ValuesEnvironment[$i].length, $EnvironmentPathList[$i][1] + ";");
+                            }
+                            else {
+
+                                $ValuesEnvironment[$i] = $ValuesEnvironment[$i].Insert($ValuesEnvironment[$i].length, ";" + $EnvironmentPathList[$i][1]);
+                            };
+
+                            [System.Environment]::SetEnvironmentVariable([System.String]$EnvironmentPathList[$i][0], $ValuesEnvironment[$i], $textTarget); 
+                        };
+                    }
+                    else {
+        
+                        [System.Environment]::SetEnvironmentVariable([System.String]$EnvironmentPathList[$i][0], [System.String]$EnvironmentPathList[$i][1], $textTarget);
+                    };
+                    
+                    WriteOutputDebug($enableWriteOutputDebug) ("Create [OK] " + $EnvironmentPathList[$i][0]);
+                };
+            };
+        };
     }; 
 
     function Set-EnvironmentJavaRemove([System.String]$textTarget) {
@@ -96,7 +144,7 @@ $JavaRocketLauncher = {
         
                     if ($EnvironmentPathList[4][0] -eq $EnvironmentPathList[$i][0]) {           
         
-                        if (IsEndPatch($ValuesEnvironment[$i])) {
+                        if (IsEndPath($ValuesEnvironment[$i])) {
                   
                             $ValuesEnvironment[$i] = $ValuesEnvironment[$i].Replace($EnvironmentPathList[$i][1] + ";" , "");
                         }
@@ -138,6 +186,6 @@ $JavaRocketLauncher = {
         Set-EnvironmentJavaRemove("Process");
     };
     
-    Set-EnvironmentJavaRemoveUser;
-    #Set-EnvironmentJavaCreateUser;
+    #Set-EnvironmentJavaRemoveUser;
+    Set-EnvironmentJavaCreateUser;
 }; & Invoke-Command $JavaRocketLauncher;
