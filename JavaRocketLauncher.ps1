@@ -1,157 +1,188 @@
 $JavaRocketLauncher = {
 
-    ## Set-ExecutionPolicy -ExecutionPolicy Unrestricted
-    ## @id:terminal.integrated.commandsToSkipShell,terminal.integrated.sendKeybindingsToShell,terminal.integrated.allowChords
-    ## powershell.exe -NoLogo -NoProfile -Command '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Install-Module -Name PackageManagement -Force -MinimumVersion 1.4.6 -Scope CurrentUser -AllowClobber -Repository PSGallery'
-    ## powershell.exe -NoLogo -NoProfile -Command '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Install-Module -Name PackageManagement -Force -MinimumVersion 1.4.6 -Scope CurrentUser -AllowClobber -Repository PSGallery'
+    $enableWriteOutputDebug = $false;
 
-    function Get-AllEnvironmentVariables {
-        $(Get-ChildItem Env:)
-    };
-    function IsValidString([System.String]$textMsg) {
-        if (([System.String]::IsNullOrEmpty($textMsg)) -And ([System.String]::IsNullOrWhitespace($textMsg))) {
-            return $false;
-        }
-        else {
-            return $true;
+    function WriteOutputDebug([System.Boolean]$enableDebug, [System.String]$textDebug) {
+
+        if ($enableDebug) {
+
+            Write-Output $textDebug;
+
         };
     };
 
-    function IsEndStringPatch([System.String]$textMsg) {
-        if (IsValidString($textMsg)) {
-            $envCharPatch = $textMsg;
-            $envCharPatch = $envCharPatch.substring($envCharPatch.Length - 1 , 1);
-            if (($envCharPatch.ToUpper()) -eq (";")) {
+    function IsValidString([System.String]$textValid) {
+
+        if (([System.String]::IsNullOrEmpty($textValid)) -And ([System.String]::IsNullOrWhitespace($textValid))) {
+
+            return $false;
+
+        }
+        else {
+
+            return $true;
+
+        };
+    };
+
+    function IsEndPath([System.String]$textPath) {
+
+        if (IsValidString($textPath)) {
+    
+            $textPath = $textPath.substring($textPath.Length - 1 , 1);
+
+            if (($textPath) -eq (";")) {
+                
                 return $true;
             }
             else {
+
                 return $false;
             };
         }
         else {
-            throw "Please Contact System Administrator [ERRO] IsEndStringPatch";
+
+            throw "[ERRO] IsEndPath";
+
         };  
     };
 
-    function CheckIsAdm {
-        $AdminSystemName = "Administrator";
-        if (((GET-WinSystemLocale)[0].Name.ToUpper()) -eq ("PT-BR")) {
-            $AdminSystemName = "Administrador";
-        }
-        $id = [System.Security.Principal.WindowsIdentity]::GetCurrent();
-        $p = New-Object System.Security.Principal.WindowsPrincipal($id);
-        if ($p.IsInRole([System.Security.Principal.WindowsBuiltInRole]::$AdminSystemName)) {
-            return $true;
-        }
-        else {
-            return $false;
-        };
-    };
+    [System.Collections.ArrayList]$EnvironmentPathList = [System.Collections.ArrayList]::new();
+    [void]$EnvironmentPathList.Add(@("JAVA_HOME"    , ("C:\JAVA\JDK"                       )));
+    [void]$EnvironmentPathList.Add(@("JDK_HOME"     , ($EnvironmentPathList[0][1]          )));
+    [void]$EnvironmentPathList.Add(@("JRE_HOME"     , ($EnvironmentPathList[0][1] + "\jre" )));
+    [void]$EnvironmentPathList.Add(@("CLASSPATH"    , ($EnvironmentPathList[0][1] + "\lib" )));
+    [void]$EnvironmentPathList.Add(@("PATH"         , ($EnvironmentPathList[0][1] + "\bin" )));
+ 
+    [System.Collections.ArrayList]$EnvironmentTargetList = [System.Collections.ArrayList]::new();
+    [void]$EnvironmentTargetList.Add("User");    
+    [void]$EnvironmentTargetList.Add("Machine");
+    [void]$EnvironmentTargetList.Add("Process"); 
 
-    function Set-Java_HOME([System.String]$textMsg) {
-        if (IsValidString($textMsg)) {
-            $Env:JAVA_HOME_PATH = $textMsg;
-            if (($Env:JAVA_HOME) -eq ($null)) {
-                $Env:JAVA_HOME = $Env:JAVA_HOME_PATH;
+    function Set-EnvironmentJavaCreate([System.String]$textTarget) {
+        
+        for ($ContadorTarget = 0; $ContadorTarget -lt $EnvironmentTargetList.Count; $ContadorTarget++) {
+
+            [System.Boolean]$EncontradoTarget = $false;
+
+            if (($EnvironmentTargetList[$ContadorTarget].ToString()) -eq ($textTarget.ToString())) {
+       
+                $EncontradoTarget = $true;
+
+                WriteOutputDebug($enableWriteOutputDebug) ("[" + $EnvironmentTargetList[$ContadorTarget] + "]");
+
             }
             else {
-                if (($Env:JAVA_HOME) -cne ($Env:JAVA_HOME_PATH)) {
-                    $Env:JAVA_HOME = $Env:JAVA_HOME_PATH;
-                };
+
+                $EncontradoTarget = $false;
             };
-        }
-        else {
-            throw "Please Contact System Administrator [ERRO] Set-Java_HOME";
-        };
-        Remove-Item -Path Env:JAVA_HOME_PATH;
-    }; 
 
-    function Set-Java_JDK([System.String]$textMsg) {
-        if (IsValidString($textMsg)) {
-            $Env:JDK_HOME_DIR = $textMsg;
-            if (($Env:JDK_HOME) -eq ($null)) {
-                $Env:JDK_HOME = $Env:JDK_HOME_DIR;
-            }
-            else {
-                if (($Env:JDK_HOME) -cne ($Env:JDK_HOME_DIR)) {
-                    $Env:JDK_HOME = $Env:JDK_HOME_DIR;
-                };
-            };
-        }
-        else {
-            throw "Please Contact System Administrator [ERRO] Set-Java_JDK";
-        };
-        Remove-Item -Path Env:JDK_HOME_DIR;
-    };
+            if ($EncontradoTarget) {
 
-    function Set-Java_JRE([System.String]$textMsg) {
-        if (IsValidString($textMsg)) {
-            $Env:JRE_HOME_DIR = $textMsg;
-            if (($Env:JRE_HOME) -eq ($null)) {
-                $Env:JRE_HOME = $Env:JRE_HOME_DIR;
-            }
-            else {
-                if (($Env:JRE_HOME) -cne ($Env:JRE_HOME_DIR)) {
-                    $Env:JRE_HOME = $Env:JRE_HOME_DIR;
-                };
-            };
-        }
-        else {
-            throw "Please Contact System Administrator [ERRO] Set-Java_JRE";
-        };
-        Remove-Item -Path Env:JRE_HOME_DIR;
-    };
+                [System.Collections.ArrayList]$ValuesEnvironment = [System.Collections.ArrayList]::new();
 
-    function Set-Java_CLASSPATH([System.String]$textMsg) {
-        if (IsValidString($textMsg)) {
-            $Env:CLASSPATH_DIR = $textMsg;
-            if (($Env:CLASSPATH) -eq ($null)) {
-                $Env:CLASSPATH = $Env:CLASSPATH_DIR;
-            }
-            else {
-                if (($Env:CLASSPATH) -cne ($Env:CLASSPATH_DIR)) {
-                    $Env:CLASSPATH = $Env:CLASSPATH_DIR;
-                };
-            };
-        }
-        else {
-            throw "Please Contact System Administrator [ERRO] Set-Java_CLASSPATH";
-        };
-        Remove-Item -Path Env:CLASSPATH_DIR;
-    };
+                for ($i = 0; $i -lt ($EnvironmentPathList.Count); $i++) {
+                    
+                    $ValuesEnvironment.Add([System.Environment]::GetEnvironmentVariable($EnvironmentPathList[$i][0], $textTarget))  > $null ;
+        
+                    if ($EnvironmentPathList[4][0] -eq $EnvironmentPathList[$i][0]) {       
 
-    function Set-Java_PATH([System.String]$textMsg) {
-        if (IsValidString($textMsg)) {
-            $Env:PATH_DIR = $textMsg;
-            if (($Env:PATH) -eq ($null)) {
-                if (CheckIsAdm) {
-                    $Env:PATH = $Env:PATH_DIR;
-                }
-                else {
-                    $Env:PATH = $Env:PATH_DIR + ";";
-                };
-            }
-            else {
-                if (($Env:PATH) -notlike ("*$Env:PATH_DIR*")) {
-                    if (IsEndStringPatch($Env:PATH)) {
-                        $Env:PATH = $Env:PATH + ";" + $Env:PATH_DIR + ";";
+                        if (($ValuesEnvironment[$i]) -notlike ("*" + $EnvironmentPathList[$i][1] + "*")) {
+
+                            if (IsEndPath($ValuesEnvironment[$i])) {
+
+                                $ValuesEnvironment[$i] = $ValuesEnvironment[$i].Insert($ValuesEnvironment[$i].length, $EnvironmentPathList[$i][1] + ";");
+                            }
+                            else {
+
+                                $ValuesEnvironment[$i] = $ValuesEnvironment[$i].Insert($ValuesEnvironment[$i].length, ";" + $EnvironmentPathList[$i][1]);
+                            };
+
+                            [System.Environment]::SetEnvironmentVariable([System.String]$EnvironmentPathList[$i][0], $ValuesEnvironment[$i], $textTarget); 
+                        };
                     }
                     else {
-                        $Env:PATH = $Env:PATH + ";" + $Env:PATH_DIR;
+        
+                        [System.Environment]::SetEnvironmentVariable([System.String]$EnvironmentPathList[$i][0], [System.String]$EnvironmentPathList[$i][1], $textTarget);
                     };
+                    
+                    WriteOutputDebug($enableWriteOutputDebug) ("Create [OK] " + $EnvironmentPathList[$i][0]);
                 };
             };
-        }
-        else {
-            throw "Please Contact System Administrator [ERRO] Set-Java_PATH";
         };
-        Remove-Item -Path Env:PATH_DIR;
+    }; 
+
+    function Set-EnvironmentJavaRemove([System.String]$textTarget) {
+   
+        for ($ContadorTarget = 0; $ContadorTarget -lt $EnvironmentTargetList.Count; $ContadorTarget++) {
+
+            [System.Boolean]$EncontradoTarget = $false;
+
+            if (($EnvironmentTargetList[$ContadorTarget].ToString()) -eq ($textTarget.ToString())) {
+       
+                $EncontradoTarget = $true;
+
+                WriteOutputDebug($enableWriteOutputDebug) ("[" + $EnvironmentTargetList[$ContadorTarget] + "]");
+
+            }
+            else {
+
+                $EncontradoTarget = $false;
+            };
+
+            if ($EncontradoTarget) {
+
+                [System.Collections.ArrayList]$ValuesEnvironment = [System.Collections.ArrayList]::new();
+
+                for ($i = 0; $i -lt ($EnvironmentPathList.Count); $i++) {
+                    
+                    $ValuesEnvironment.Add([System.Environment]::GetEnvironmentVariable($EnvironmentPathList[$i][0], $textTarget))  > $null ;
+        
+                    if ($EnvironmentPathList[4][0] -eq $EnvironmentPathList[$i][0]) {           
+        
+                        if (IsEndPath($ValuesEnvironment[$i])) {
+                  
+                            $ValuesEnvironment[$i] = $ValuesEnvironment[$i].Replace($EnvironmentPathList[$i][1] + ";" , "");
+                        }
+                        else {
+        
+                            $ValuesEnvironment[$i] = $ValuesEnvironment[$i].Replace(";" + $EnvironmentPathList[$i][1], "");
+                        }
+        
+                        [System.Environment]::SetEnvironmentVariable([System.String]$EnvironmentPathList[$i][0], $ValuesEnvironment[$i], $textTarget);
+                    }
+                    else {
+        
+                        [System.Environment]::SetEnvironmentVariable([System.String]$EnvironmentPathList[$i][0], [System.String]$null, $textTarget);
+                    };
+                    
+                    WriteOutputDebug($enableWriteOutputDebug) ("Delete [OK] " + $EnvironmentPathList[$i][0]);
+                };
+            };
+        };
+    }; 
+
+    function Set-EnvironmentJavaCreateUser {
+        Set-EnvironmentJavaCreate("User");
     };
- 
-    Set-Java_HOME("C:\JAVA\JDK");
-    Set-Java_JDK($(Get-ChildItem Env:JAVA_HOME)[0].Value.ToString());
-    Set-Java_JRE($(Get-ChildItem Env:JAVA_HOME)[0].Value.ToString() + "\jre");
-    Set-Java_CLASSPATH($(Get-ChildItem Env:JAVA_HOME)[0].Value.ToString() + "\lib");
-    Set-Java_PATH($(Get-ChildItem Env:JAVA_HOME)[0].Value.ToString() + "\bin");
-    Get-AllEnvironmentVariables;
+    function Set-EnvironmentJavaCreateMachine {
+        Set-EnvironmentJavaCreate("Machine");
+    };
+    function Set-EnvironmentJavaCreateProcess {
+        Set-EnvironmentJavaCreate("Process");
+    };
+
+    function Set-EnvironmentJavaRemoveUser {
+        Set-EnvironmentJavaRemove("User");
+    };
+    function Set-EnvironmentJavaRemoveMachine {
+        Set-EnvironmentJavaRemove("Machine");
+    };
+    function Set-EnvironmentJavaRemoveProcess {
+        Set-EnvironmentJavaRemove("Process");
+    };
+    
+    # Set-EnvironmentJavaRemoveUser;
+    # Set-EnvironmentJavaCreateUser;
+
 }; & Invoke-Command $JavaRocketLauncher;
