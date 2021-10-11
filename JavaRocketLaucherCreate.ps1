@@ -2,19 +2,13 @@ $JavaRocketLauncher = {
 
     $enableWriteOutputDebug = $true;
 
-    function WriteOutputDebug([System.Boolean]$executeDebug, [System.String]$textDebug) {
+    function WriteOutputDebug([System.Boolean]$enableDebug, [System.String]$textDebug) {
 
-        if ($executeDebug) {
+        if ($enableDebug) {
 
             Write-Output $textDebug;
 
         };
-    };
-
-    function Get-AllEnvironmentVariables {
-
-        $(Get-ChildItem Env:);
-
     };
 
     function IsValidString([System.String]$textValid) {
@@ -53,17 +47,17 @@ $JavaRocketLauncher = {
         };  
     };
 
-    [System.String[][]]$EnvironmentPathList;
-    $EnvironmentPathList += , @("JAVA_HOME" , "C:\JAVA\JDK");
-    $EnvironmentPathList += , @("JDK_HOME"  , ($EnvironmentPathList[0][1]));
-    $EnvironmentPathList += , @("JRE_HOME"  , ($EnvironmentPathList[0][1] + "\jre"));
-    $EnvironmentPathList += , @("CLASSPATH" , ($EnvironmentPathList[0][1] + "\lib"));
-    $EnvironmentPathList += , @("PATH"      , ($EnvironmentPathList[0][1] + "\bin"));
-
-    $EnvironmentTargetList = New-Object System.Collections.ArrayList;
-    $EnvironmentTargetList.Add("User")    > $null ;
-    $EnvironmentTargetList.Add("Machine") > $null ;
-    $EnvironmentTargetList.Add("Process") > $null ;
+    [System.Collections.ArrayList]$EnvironmentPathList = [System.Collections.ArrayList]::new();
+    [void]$EnvironmentPathList.Add(@("JAVA_HOME"    , ("C:\JAVA\JDK"                       )));
+    [void]$EnvironmentPathList.Add(@("JDK_HOME"     , ($EnvironmentPathList[0][1]          )));
+    [void]$EnvironmentPathList.Add(@("JRE_HOME"     , ($EnvironmentPathList[0][1] + "\jre" )));
+    [void]$EnvironmentPathList.Add(@("CLASSPATH"    , ($EnvironmentPathList[0][1] + "\lib" )));
+    [void]$EnvironmentPathList.Add(@("PATH"         , ($EnvironmentPathList[0][1] + "\bin" )));
+ 
+    [System.Collections.ArrayList]$EnvironmentTargetList = [System.Collections.ArrayList]::new();
+    [void]$EnvironmentTargetList.Add("User");    
+    [void]$EnvironmentTargetList.Add("Machine");
+    [void]$EnvironmentTargetList.Add("Process"); 
 
     function Set-EnvironmentJavaCreate([System.String]$textTarget) {
         
@@ -74,6 +68,7 @@ $JavaRocketLauncher = {
             if (($EnvironmentTargetList[$ContadorTarget].ToString()) -eq ($textTarget.ToString())) {
        
                 $EncontradoTarget = $true;
+
                 WriteOutputDebug($enableWriteOutputDebug) ("[" + $EnvironmentTargetList[$ContadorTarget] + "]");
 
             }
@@ -84,7 +79,7 @@ $JavaRocketLauncher = {
 
             if ($EncontradoTarget) {
 
-                $ValuesEnvironment = New-Object System.Collections.ArrayList;
+                [System.Collections.ArrayList]$ValuesEnvironment = [System.Collections.ArrayList]::new();
 
                 for ($i = 0; $i -lt ($EnvironmentPathList.Count); $i++) {
                     
@@ -126,6 +121,7 @@ $JavaRocketLauncher = {
             if (($EnvironmentTargetList[$ContadorTarget].ToString()) -eq ($textTarget.ToString())) {
        
                 $EncontradoTarget = $true;
+
                 WriteOutputDebug($enableWriteOutputDebug) ("[" + $EnvironmentTargetList[$ContadorTarget] + "]");
 
             }
@@ -136,7 +132,7 @@ $JavaRocketLauncher = {
 
             if ($EncontradoTarget) {
 
-                $ValuesEnvironment = New-Object System.Collections.ArrayList;
+                [System.Collections.ArrayList]$ValuesEnvironment = [System.Collections.ArrayList]::new();
 
                 for ($i = 0; $i -lt ($EnvironmentPathList.Count); $i++) {
                     
@@ -186,6 +182,6 @@ $JavaRocketLauncher = {
         Set-EnvironmentJavaRemove("Process");
     };
     
-    #Set-EnvironmentJavaRemoveUser;
-    Set-EnvironmentJavaCreateUser;
+    # Set-EnvironmentJavaRemoveUser;
+    # Set-EnvironmentJavaCreateUser;
 }; & Invoke-Command $JavaRocketLauncher;
